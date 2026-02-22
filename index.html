@@ -115,6 +115,7 @@
   .story-title a:hover { color: var(--accent); }
 
   .story-summary { font-size: 16px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 10px; padding-left: 13px; }
+  .story-image { width: 100%; border-radius: 6px; margin-bottom: 12px; margin-left: 13px; max-width: calc(100% - 13px); object-fit: cover; max-height: 340px; background: var(--border); }
   .story-footer { display: flex; align-items: center; gap: 8px; padding-left: 13px; flex-wrap: wrap; }
 
   .story-cat {
@@ -182,6 +183,7 @@
     .masthead-title { font-size: 28px; }
     .story-title { font-size: 18px; }
     .story-summary { font-size: 15px; }
+    .story-image { max-height: 220px; }
     .story.feel-good { margin-left: -3px; }
   }
 </style>
@@ -194,7 +196,7 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const LAMBDA_URL = "https://3zm7n5qrlabba4mtbsqkz4vct40iayws.lambda-url.ca-central-1.on.aws/"; // ← PASTE YOUR NEWSFEED LAMBDA URL HERE
+const LAMBDA_URL = ""; // ← PASTE YOUR NEWSFEED LAMBDA URL HERE
 
 const CAT_LABELS = {
   "world": "World", "canada": "Canada", "new-brunswick": "New Brunswick",
@@ -308,6 +310,7 @@ function App() {
         <div>
           {data && <>{data.story_count} stories from {data.article_count} articles
             {data.cached && <> · <span className="cached-badge">cached {data.cache_age_minutes}m ago</span></>}
+            {data.feed_errors && data.feed_errors.length > 0 && <> · <span style={{color:"#b88",fontSize:11}} title={data.feed_errors.join('\n')}>{data.feed_errors.length} feed(s) failed ⓘ</span></>}
           </>}
         </div>
         <div style={{display:"flex",gap:6}}>
@@ -383,6 +386,7 @@ function App() {
               </h2>
             </div>
             <p className="story-summary">{s.summary}</p>
+            {s.image && <img className="story-image" src={s.image} alt="" loading="lazy" onError={e => e.target.style.display='none'} />}
             <div className="story-footer">
               <span className="story-cat" data-cat={s.category}>{CAT_LABELS[s.category] || s.category}</span>
               <span className="story-source">{s.source}</span>
