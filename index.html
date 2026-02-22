@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>The Morning Read</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f4;
+    --card: #ffffff;
+    --text: #2c2c2c;
+    --text-secondary: #6b6560;
+    --text-faint: #a09890;
+    --border: #e8e2da;
+    --accent: #b8860b;
+    --accent-soft: #f5f0e6;
+    --high: #8b6914;
+    --medium: #6b8068;
+    --low: #8890a0;
+    --feel-good: #4a8c5c;
+    --feel-good-bg: #f0f7f2;
+    --anxious-bg: #f5f0ea;
+    --anxious-border: #d4c9b8;
+    --cat-world: #5c7080;
+    --cat-canada: #8b4513;
+    --cat-nb: #2e7d5b;
+    --cat-science: #4a6fa5;
+    --cat-business: #7a6850;
+    --cat-tech: #607068;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    font-family: 'Source Sans 3', Georgia, serif;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 0 20px; }
+
+  /* Setup */
+  .setup { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+  .setup-icon { font-size: 56px; margin-bottom: 16px; }
+  .setup-title { font-family: 'Lora', Georgia, serif; font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .setup-subtitle { font-family: 'Lora', Georgia, serif; font-style: italic; color: var(--text-faint); font-size: 15px; margin-bottom: 24px; }
+  .setup-desc { font-size: 14px; color: var(--text-secondary); max-width: 360px; line-height: 1.6; margin-bottom: 24px; }
+  .setup-input {
+    width: 100%; max-width: 380px; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; font-size: 15px; font-family: inherit; background: var(--card);
+    color: var(--text); outline: none; margin-bottom: 10px;
+  }
+  .setup-input:focus { border-color: var(--accent); }
+  .setup-err { color: #b44; font-size: 13px; font-weight: 600; margin-top: 8px; }
+  .setup-btn {
+    width: 100%; max-width: 380px; background: var(--text); color: var(--bg); border: none;
+    border-radius: 8px; padding: 13px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .setup-btn:hover { opacity: 0.9; }
+
+  /* Masthead */
+  .masthead { text-align: center; padding: 40px 0 24px; border-bottom: 2px solid var(--text); margin-bottom: 8px; }
+  .masthead-date { font-size: 13px; color: var(--text-secondary); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .masthead-title { font-family: 'Lora', Georgia, serif; font-size: 38px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; line-height: 1.1; }
+  .masthead-subtitle { font-family: 'Lora', Georgia, serif; font-style: italic; font-size: 15px; color: var(--text-faint); margin-top: 6px; }
+
+  .meta-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; font-size: 12px; color: var(--text-faint); flex-wrap: wrap; gap: 8px; }
+  .cached-badge { background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+  .btn-small {
+    background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px;
+    font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-small:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-small:disabled { opacity: 0.4; cursor: default; }
+
+  /* Category pills */
+  .cat-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px; }
+  .cat-pill {
+    border: 1px solid var(--border); background: transparent; border-radius: 20px; padding: 5px 14px;
+    font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+  }
+  .cat-pill:hover { border-color: var(--text-secondary); }
+  .cat-pill.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* Stories */
+  .story {
+    margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border);
+    opacity: 0; transform: translateY(12px); animation: fadeUp 0.5s ease forwards;
+  }
+  .story:last-child { border-bottom: none; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .story-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .story-importance { width: 3px; border-radius: 2px; flex-shrink: 0; margin-top: 6px; min-height: 20px; align-self: stretch; }
+  .story-importance.high { background: var(--high); }
+  .story-importance.medium { background: var(--medium); }
+  .story-importance.low { background: var(--low); opacity: 0.4; }
+
+  .story-title { font-family: 'Lora', Georgia, serif; font-size: 21px; font-weight: 700; line-height: 1.3; color: var(--text); flex: 1; }
+  .story-title a { color: inherit; text-decoration: none; transition: color 0.15s; }
+  .story-title a:hover { color: var(--accent); }
+
+  .story-summary { font-size: 16px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 10px; padding-left: 13px; }
+  .story-footer { display: flex; align-items: center; gap: 8px; padding-left: 13px; flex-wrap: wrap; }
+
+  .story-cat {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 2px 8px; border-radius: 3px; background: var(--accent-soft);
+  }
+  .story-cat[data-cat="world"] { color: var(--cat-world); }
+  .story-cat[data-cat="canada"] { color: var(--cat-canada); }
+  .story-cat[data-cat="new-brunswick"] { color: var(--cat-nb); }
+  .story-cat[data-cat="science"] { color: var(--cat-science); }
+  .story-cat[data-cat="business"] { color: var(--cat-business); }
+  .story-cat[data-cat="tech"] { color: var(--cat-tech); }
+  .story-cat[data-cat="feel-good"] { color: var(--feel-good); background: var(--feel-good-bg); }
+
+  .story-source { font-size: 12px; color: var(--text-faint); font-style: italic; }
+
+  /* Feedback buttons */
+  .feedback { display: flex; gap: 4px; margin-left: auto; }
+  .fb-btn {
+    background: none; border: 1px solid transparent; border-radius: 4px; padding: 2px 8px;
+    font-family: inherit; font-size: 11px; color: var(--text-faint); cursor: pointer; transition: all 0.15s;
+  }
+  .fb-btn:hover { border-color: var(--border); color: var(--text-secondary); }
+  .fb-btn.sent { color: var(--accent); font-weight: 600; }
+
+  /* Feel-good accent */
+  .story.feel-good { border-left: 3px solid var(--feel-good); padding-left: 16px; margin-left: -19px; }
+  .story.feel-good .story-importance { background: var(--feel-good); }
+
+  /* Anxious story: blurred until revealed */
+  .anxious-gate {
+    background: var(--anxious-bg); border: 1px solid var(--anxious-border); border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 28px;
+    opacity: 0; transform: translateY(12px); animation: fadeUp 0.5s ease forwards;
+  }
+  .anxious-label {
+    font-size: 12px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .anxious-reason { font-family: 'Lora', Georgia, serif; font-size: 16px; color: var(--text-secondary); margin-bottom: 10px; }
+  .anxious-hint { font-size: 12px; color: var(--text-faint); font-style: italic; margin-bottom: 10px; }
+  .reveal-btn {
+    background: none; border: 1px solid var(--anxious-border); border-radius: 6px; padding: 6px 16px;
+    font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+  }
+  .reveal-btn:hover { border-color: var(--text-secondary); color: var(--text); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 80px 20px; }
+  .loading-text { font-family: 'Lora', Georgia, serif; font-style: italic; font-size: 18px; color: var(--text-faint); margin-bottom: 20px; }
+  .loading-dots span { display: inline-block; width: 6px; height: 6px; background: var(--text-faint); border-radius: 50%; margin: 0 3px; animation: pulse 1.4s ease-in-out infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+  .error-msg { text-align: center; padding: 60px 20px; color: var(--text-secondary); font-family: 'Lora', Georgia, serif; font-style: italic; font-size: 16px; }
+  .empty-filter { text-align: center; padding: 40px 20px; color: var(--text-faint); font-style: italic; }
+
+  .footer { text-align: center; padding: 24px 0 40px; font-size: 12px; color: var(--text-faint); border-top: 1px solid var(--border); margin-top: 16px; }
+  .footer a { color: var(--text-secondary); text-decoration: none; cursor: pointer; }
+  .footer a:hover { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .masthead { padding: 24px 0 16px; }
+    .masthead-title { font-size: 28px; }
+    .story-title { font-size: 18px; }
+    .story-summary { font-size: 15px; }
+    .story.feel-good { margin-left: -3px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const LAMBDA_URL = "https://3zm7n5qrlabba4mtbsqkz4vct40iayws.lambda-url.ca-central-1.on.aws/"; // ← PASTE YOUR NEWSFEED LAMBDA URL HERE
+
+const CAT_LABELS = {
+  "world": "World", "canada": "Canada", "new-brunswick": "New Brunswick",
+  "science": "Science", "business": "Business", "tech": "Tech", "feel-good": "Feel Good"
+};
+
+function formatDate() {
+  return new Date().toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function timeAgo(iso) {
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return hrs < 24 ? `${hrs}h ago` : `${Math.floor(hrs / 24)}d ago`;
+}
+
+function App() {
+  const [secret, setSecret] = useState(() => localStorage.getItem("nf_secret") || "");
+  const [secretInput, setSecretInput] = useState("");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [catFilter, setCatFilter] = useState(null);
+  const [revealed, setRevealed] = useState(new Set());
+  const [feedbackSent, setFeedbackSent] = useState({});
+
+  const fetchFeed = useCallback(async (sk, force) => {
+    const key = sk || secret;
+    if (!key) return;
+    setLoading(true); setError(null);
+    try {
+      const url = LAMBDA_URL + (force ? "?refresh=1" : "");
+      const res = await fetch(url, { headers: { "x-secret": key } });
+      if (res.status === 403) { setError("Wrong secret key"); setLoading(false); return; }
+      if (!res.ok) throw new Error(`${res.status}`);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      setData(json);
+    } catch (e) {
+      setError(e.message || "Failed to load");
+    }
+    setLoading(false);
+  }, [secret]);
+
+  const saveSecret = () => {
+    const s = secretInput.trim();
+    if (!s) return;
+    localStorage.setItem("nf_secret", s);
+    setSecret(s);
+    fetchFeed(s);
+  };
+
+  const sendFeedback = async (action, label) => {
+    const fbKey = `${action}-${label}`;
+    if (feedbackSent[fbKey]) return;
+    try {
+      await fetch(LAMBDA_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-secret": secret },
+        body: JSON.stringify({ action, label })
+      });
+      setFeedbackSent(prev => ({ ...prev, [fbKey]: true }));
+    } catch {}
+  };
+
+  const toggleReveal = (idx) => {
+    setRevealed(prev => {
+      const next = new Set(prev);
+      next.has(idx) ? next.delete(idx) : next.add(idx);
+      return next;
+    });
+  };
+
+  useEffect(() => { if (secret) fetchFeed(); }, []);
+
+  // ── Setup ──
+  if (!secret) return (
+    <div className="app">
+      <div className="setup">
+        <div className="setup-icon">☕</div>
+        <div className="setup-title">The Morning Read</div>
+        <div className="setup-subtitle">What actually happened — no noise, no panic</div>
+        <div className="setup-desc">Your calm, filtered news digest. No ads, no tracking, no rage-bait. Enter your sync key to connect.</div>
+        <input className="setup-input" type="password" placeholder="Your secret key…"
+          value={secretInput} onChange={e => setSecretInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && saveSecret()} autoFocus />
+        <button className="setup-btn" onClick={saveSecret}>Start reading →</button>
+        {error && <div className="setup-err">❌ {error}</div>}
+      </div>
+    </div>
+  );
+
+  const stories = data?.stories || [];
+  const categories = [...new Set(stories.map(s => s.category))].sort((a, b) => {
+    const order = ["canada", "new-brunswick", "world", "science", "tech", "business", "feel-good"];
+    return order.indexOf(a) - order.indexOf(b);
+  });
+  const filtered = catFilter ? stories.filter(s => s.category === catFilter) : stories;
+
+  return (
+    <div className="app">
+      <header className="masthead">
+        <div className="masthead-date">{formatDate()}</div>
+        <h1 className="masthead-title">The Morning Read</h1>
+        <div className="masthead-subtitle">What actually happened — no noise, no panic</div>
+      </header>
+
+      <div className="meta-bar">
+        <div>
+          {data && <>{data.story_count} stories from {data.article_count} articles
+            {data.cached && <> · <span className="cached-badge">cached {data.cache_age_minutes}m ago</span></>}
+          </>}
+        </div>
+        <div style={{display:"flex",gap:6}}>
+          <button className="btn-small" onClick={() => fetchFeed(null, true)} disabled={loading}>
+            {loading ? "Refreshing…" : "↻ Fresh"}
+          </button>
+          <button className="btn-small" onClick={() => fetchFeed()} disabled={loading}>
+            Reload
+          </button>
+        </div>
+      </div>
+
+      {loading && !data && (
+        <div className="loading">
+          <div className="loading-text">Reading through today's news…</div>
+          <div className="loading-dots"><span /><span /><span /></div>
+        </div>
+      )}
+
+      {error && !data && (
+        <div className="error-msg">
+          Couldn't load the feed — {error}<br /><br />
+          <button className="btn-small" onClick={() => fetchFeed()}>Try again</button>
+          {" "}
+          <button className="btn-small" onClick={() => { localStorage.removeItem("nf_secret"); setSecret(""); setError(null); }}>Change key</button>
+        </div>
+      )}
+
+      {stories.length > 0 && (
+        <div className="cat-bar">
+          <button className={`cat-pill${!catFilter ? " active" : ""}`} onClick={() => setCatFilter(null)}>All</button>
+          {categories.map(c => (
+            <button key={c} className={`cat-pill${catFilter === c ? " active" : ""}`}
+              onClick={() => setCatFilter(catFilter === c ? null : c)}>
+              {CAT_LABELS[c] || c}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.map((s, i) => {
+        const isAnxious = s.anxious && !revealed.has(i);
+        const feedbackLabel = `${s.category}: ${s.title.slice(0, 60)}`;
+        const moreKey = `more-${feedbackLabel}`;
+        const lessKey = `less-${feedbackLabel}`;
+
+        // Anxious story: show gated version
+        if (isAnxious) return (
+          <div className="anxious-gate" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+            <div className="anxious-label">⚠️ Potentially stressful</div>
+            <div className="anxious-reason">{s.anxious_reason || "This story may contain anxiety-inducing content"}</div>
+            <div className="anxious-hint">Tap to read when you're ready — it's okay to skip it.</div>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <button className="reveal-btn" onClick={() => toggleReveal(i)}>Read story</button>
+              <span className="feedback">
+                <button className={`fb-btn${feedbackSent[lessKey] ? " sent" : ""}`}
+                  onClick={() => sendFeedback("less", feedbackLabel)}>
+                  {feedbackSent[lessKey] ? "✓ noted" : "less like this"}
+                </button>
+              </span>
+            </div>
+          </div>
+        );
+
+        // Normal story (or revealed anxious story)
+        return (
+          <article className={`story${s.category === "feel-good" ? " feel-good" : ""}`}
+            key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+            <div className="story-header">
+              <div className={`story-importance ${s.importance || 'medium'}`} />
+              <h2 className="story-title">
+                <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+              </h2>
+            </div>
+            <p className="story-summary">{s.summary}</p>
+            <div className="story-footer">
+              <span className="story-cat" data-cat={s.category}>{CAT_LABELS[s.category] || s.category}</span>
+              <span className="story-source">{s.source}</span>
+              <span className="feedback">
+                <button className={`fb-btn${feedbackSent[moreKey] ? " sent" : ""}`}
+                  onClick={() => sendFeedback("more", feedbackLabel)}>
+                  {feedbackSent[moreKey] ? "✓" : "more"}
+                </button>
+                <button className={`fb-btn${feedbackSent[lessKey] ? " sent" : ""}`}
+                  onClick={() => sendFeedback("less", feedbackLabel)}>
+                  {feedbackSent[lessKey] ? "✓" : "less"}
+                </button>
+              </span>
+            </div>
+            {s.anxious && (
+              <button className="fb-btn" style={{paddingLeft:13,marginTop:4,fontSize:11}}
+                onClick={() => toggleReveal(i)}>hide again</button>
+            )}
+          </article>
+        );
+      })}
+
+      {data && filtered.length === 0 && !loading && (
+        <div className="empty-filter">No stories in this category today.</div>
+      )}
+
+      {data && (
+        <footer className="footer">
+          Generated {timeAgo(data.generated_at)} · Filtered from {data.article_count} raw articles<br />
+          <a onClick={() => { localStorage.removeItem("nf_secret"); setSecret(""); }}>Change key</a>
+        </footer>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
