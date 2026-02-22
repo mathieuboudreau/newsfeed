@@ -196,7 +196,7 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const LAMBDA_URL = "https://3zm7n5qrlabba4mtbsqkz4vct40iayws.lambda-url.ca-central-1.on.aws/"; // ← PASTE YOUR NEWSFEED LAMBDA URL HERE
+const LAMBDA_URL = ""; // ← PASTE YOUR NEWSFEED LAMBDA URL HERE
 
 const CAT_LABELS = {
   "world": "World", "canada": "Canada", "new-brunswick": "New Brunswick",
@@ -280,7 +280,7 @@ function App() {
       <div className="setup">
         <div className="setup-icon">☕</div>
         <div className="setup-title">The Morning Read</div>
-        <div className="setup-subtitle">What actually happened — no noise, no panic</div>
+        <div className="setup-subtitle">What actually happened — just the signal</div>
         <div className="setup-desc">Your calm, filtered news digest. No ads, no tracking, no rage-bait. Enter your sync key to connect.</div>
         <input className="setup-input" type="password" placeholder="Your secret key…"
           value={secretInput} onChange={e => setSecretInput(e.target.value)}
@@ -297,13 +297,14 @@ function App() {
     return order.indexOf(a) - order.indexOf(b);
   });
   const filtered = catFilter ? stories.filter(s => s.category === catFilter) : stories;
+  const sorted = [...filtered].sort((a, b) => (a.anxious ? 1 : 0) - (b.anxious ? 1 : 0));
 
   return (
     <div className="app">
       <header className="masthead">
         <div className="masthead-date">{formatDate()}</div>
         <h1 className="masthead-title">The Morning Read</h1>
-        <div className="masthead-subtitle">What actually happened — no noise, no panic</div>
+        <div className="masthead-subtitle">What actually happened — just the signal</div>
       </header>
 
       <div className="meta-bar">
@@ -351,7 +352,7 @@ function App() {
         </div>
       )}
 
-      {filtered.map((s, i) => {
+      {sorted.map((s, i) => {
         const isAnxious = s.anxious && !revealed.has(i);
         const feedbackLabel = `${s.category}: ${s.title.slice(0, 60)}`;
         const moreKey = `more-${feedbackLabel}`;
@@ -360,9 +361,9 @@ function App() {
         // Anxious story: show gated version
         if (isAnxious) return (
           <div className="anxious-gate" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
-            <div className="anxious-label">⚠️ Potentially stressful</div>
-            <div className="anxious-reason">{s.anxious_reason || "This story may contain anxiety-inducing content"}</div>
-            <div className="anxious-hint">Tap to read when you're ready — it's okay to skip it.</div>
+            <div className="anxious-label">🔇 Heavy topic</div>
+            <div className="anxious-reason">{s.anxious_reason || "This one's a heavier read"}</div>
+            <div className="anxious-hint">Tap to read when you're ready — or just skip it.</div>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <button className="reveal-btn" onClick={() => toggleReveal(i)}>Read story</button>
               <span className="feedback">
@@ -409,7 +410,7 @@ function App() {
         );
       })}
 
-      {data && filtered.length === 0 && !loading && (
+      {data && sorted.length === 0 && !loading && (
         <div className="empty-filter">No stories in this category today.</div>
       )}
 
