@@ -386,7 +386,7 @@ function App() {
               </h2>
             </div>
             <p className="story-summary">{s.summary}</p>
-            {s.image && <img className="story-image" src={s.image} alt="" loading="lazy" onError={e => e.target.style.display='none'} />}
+            {s.image && <img className="story-image" src={s.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={e => e.target.style.display='none'} />}
             <div className="story-footer">
               <span className="story-cat" data-cat={s.category}>{CAT_LABELS[s.category] || s.category}</span>
               <span className="story-source">{s.source}</span>
